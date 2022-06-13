@@ -7,7 +7,6 @@ I have been using Zettlr for a couple of weeks now with main focus on thesis wri
 * Mac M1 (Monterey)
 * Zettlr Version 2.2.6
 
-—  
 ## Design: 
 + overall intuitive customizable design
 
