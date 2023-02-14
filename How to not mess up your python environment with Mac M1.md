@@ -1,12 +1,12 @@
 # How to not mess up your python environment with Mac M1
 
----
+```
 tested with: 
 Macbook Air M1 Ventura
 Brew 3.6.21
 Pyenv pyenv 2.3.12-16-gc8daaa39
 Python 3.11.1
----
+```
 
 ## Wrong Python Package Path
 * if pip environment is correct, but packages are installed to wrong location, check `pip config list`
