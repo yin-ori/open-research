@@ -1,0 +1,645 @@
+%----------------------------------------------------------------------------
+%	COMPILING SORTING
+%----------------------------------------------------------------------------
+% arara: lualatex: { shell: true, synctex: true }
+% arara: bib2gls: { group: true }
+% arara: lualatex: { shell: true, synctex: true }
+% arara: makeindex: { style: mind.ist }
+% arara: biber
+% arara: lualatex: { shell: true, synctex: true }
+% [arara: clean: { extensions: [ aux, bbl, bcf, blg, ltjruby, run.xml, synctex.gz, glg, glstex, idx, ilg, ind, lof, log, lot, out, toc ] }
+%----------------------------------------------------------------------------
+%	LAYOUT
+%----------------------------------------------------------------------------
+\documentclass[
+  12pt,
+  a4paper,
+  %parskip,
+  headings=standardclasses,
+  listof=totoc,
+  numbers=noenddot
+]{scrartcl}
+
+\usepackage[hmargin=2.5cm, top=2.5cm, bottom=2cm, footskip=1cm]{geometry}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[main=ngerman, english]{babel}
+\usepackage[babel, german=quotes]{csquotes}
+\usepackage[ngerman]{isodate}
+\usepackage[ngerman]{datetime}
+\usepackage{hyphenat}% create hypen without overfull box
+%----------------------------------------------------------------------------
+%	FONT
+%----------------------------------------------------------------------------
+\usepackage{libertine}
+\usepackage{libertinust1math}
+
+\usepackage[
+no-math,
+match,
+haranoaji
+]{luatexja-preset}% Japanese
+%\setmainjfont{haranoaji}
+\usepackage{luatexja-ruby}% hiragana
+\ltjsetparameter{jacharrange={-3}}% punctuation is Latin
+
+% sffamily
+\usepackage{etoolbox} 
+\AtBeginEnvironment{xltabular}{\sffamily}% xltabular　
+\usepackage{floatrow}
+\floatsetup[table]{font={sf,small},capposition=top}% table
+\floatsetup[figure]{font={sf,small},capposition=top}% figure sf
+
+% caption sffamily
+\usepackage{caption}
+\captionsetup[table]{labelfont={sf,small},font={sf,small}}
+\captionsetup[figure]{labelfont={sf,small},font={sf,small}}
+
+% no-package alternative sf 
+%\makeatletter
+%\renewenvironment{table}% figure sf
+  %{\renewcommand\familydefault\sfdefault
+   %\@float{table}}
+  %{\end@float}
+%\makeatother
+
+%\makeatletter
+%\renewenvironment{figure}% figure sf
+  %{\renewcommand\familydefault\sfdefault
+   %\@float{figure}}
+  %{\end@float}
+%\makeatother
+\usepackage{color,soul}
+\usepackage{textcomp}% angle brackets
+%----------------------------------------------------------------------------
+%	PAGING TITLES
+%----------------------------------------------------------------------------
+\renewcommand\sectionformat{\mbox{\thesection.\enskip$|$\enskip}}% 
+
+\RedeclareSectionCommand[
+  beforeskip=2\baselineskip,% positive value, if afterindent=false is set
+  afterindent=false,
+  afterskip=.5\baselineskip,
+  tocentrynumberformat=\def\autodot{.}% replace \autodot by a fixed dot for section entries
+   ]{section}
+   
+\RedeclareSectionCommand[
+  beforeskip=-1\baselineskip,
+  afterskip=.5\baselineskip]{subsection}
+  
+\RedeclareSectionCommand[
+  beforeskip=-1\baselineskip,
+  afterskip=.5\baselineskip]{subsubsection}
+  
+\RedeclareSectionCommand[
+  beforeskip=-1\baselineskip,
+  afterskip=.5\baselineskip]{paragraph}
+  
+\RedeclareSectionCommand[
+  beforeskip=-1\baselineskip,
+  afterskip=.5\baselineskip]{subparagraph}
+ 
+\usepackage{authblk}
+%----------------------------------------------------------------------------
+%	TOC
+%----------------------------------------------------------------------------
+\KOMAoptions{toc=sectionentrydotfill}
+\KOMAoption{captions}{tableheading}% correct TOC count for tables
+\renewcaptionname{ngerman}{\contentsname}{Inhaltsverzeichnis}
+\BeforeTOCHead[toc]{{\pdfbookmark[1]{\contentsname}{toc}}}% TOC in bookmarks
+\AddtoDoHook{heading/preinit/part}{\clearpage\vspace*{\stretch{1}}}
+\AddtoDoHook{heading/endgroup/part}{\vspace*{\stretch{2}}\clearpage}
+\setkomafont{partprefix}{\usekomafont{part}}
+
+\renewcommand{\listfigurename}{Abbildungsverzeichnis}
+\renewcommand{\figurename}{Abb.}
+\counterwithout{figure}{section}
+
+\renewcommand{\listtablename}{Tabellenverzeichnis}
+\renewcommand{\tablename}{Tab.}
+\counterwithout{table}{section}
+%----------------------------------------------------------------------------
+%	INSPIRATIONAL QUOTES
+%----------------------------------------------------------------------------
+\usepackage{epigraph}
+%----------------------------------------------------------------------------
+%	GLOSSARIES & INDECES
+%----------------------------------------------------------------------------
+\usepackage{makeidx}
+\usepackage[record,% using bib2gls
+ abbreviations,% create 'abbreviations' glossary
+ style=indexgroup,% set the default style to 'tree'
+ postdot
+]{glossaries-extra}
+\setabbreviationstyle[common]{short}% set abbreviation style before \GlsXtrLoadResources
+\glssetcategoryattribute{general}{glossname}{firstuc}
+\glssetcategoryattribute{general}{glossdesc}{firstuc}
+\GlsXtrLoadResources[src={glossary}]
+%\setkomafont{descriptionlabel}{\normalfont\bfseries}% set serif style glossary
+\makeindex
+\usepackage[totoc]{idxlayout}
+%----------------------------------------------------------------------------
+%	APPENDICES
+%----------------------------------------------------------------------------
+\newcommand*\appendixmore{
+  \clearpage
+  \renewcommand{\thesubsection}{\Alph{subsection}}%
+}
+%----------------------------------------------------------------------------
+%	ITEMS
+%----------------------------------------------------------------------------
+\usepackage{enumitem}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}}
+\renewcommand{\labelenumiv}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.\arabic{enumiv}}
+\newcommand\pro{\item[$+$]}
+\newcommand\con{\item[$–$]}
+%----------------------------------------------------------------------------
+%	TABLES
+%----------------------------------------------------------------------------
+%\usepackage{xcolor}% mark text must be above arydshln
+%\usepackage{colortbl}
+\usepackage[table]{xcolor}
+\usepackage{arydshln}% draw dash-lines in tables
+\usepackage{longtable}% longtables 
+\usepackage{array,booktabs,makecell,multirow,subcaption,xltabular}
+\setcellgapes{2pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\renewcommand{\arraystretch}{1.5}
+\setlength\tabcolsep{4pt} % default: 6pt
+\setlength\dashlinedash{0.2pt}% dashed lines
+\setlength\dashlinegap{1.5pt}% dashed lines
+\setlength\arrayrulewidth{0.3pt}% dashed lines
+\arrayrulecolor{gray}
+\usepackage{diagbox}% diagonal box
+\usepackage{tikz}% tikz
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,backgrounds,fit,positioning,shapes.symbols,chains,tikzmark}
+\tikzset{big circle/.style={draw, circle, minimum width=4cm, align=#1, font=\scriptsize}}% tikz conceptual blending
+\usepackage[most]{tcolorbox}
+%----------------------------------------------------------------------------
+%	FIGURES
+%----------------------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{ {./figures/} }
+\usepackage{lscape}% landscape mode
+\usepackage[final]{pdfpages}% pdf
+\usepackage{chngcntr}
+\usepackage[]{forest}% linguistic figures
+\usepackage{svg}% svg files
+\renewcommand{\listfigurename}{Abbildungsverzeichnis}
+\renewcommand{\figurename}{Abb.}
+\counterwithout{figure}{section}
+%----------------------------------------------------------------------------
+%	BIB
+%----------------------------------------------------------------------------
+\usepackage[
+  backend=biber,
+  style=ext-authoryear,
+  sorting=nyvt,
+  datamodel=customstyles,
+  maxnames=25,
+  innamebeforetitle=true,
+  usetranslator=true,
+  alldates=terse,
+  labeldate=year,
+  dashed=false,
+  doi=false,
+  isbn=false,
+  url=false
+]{biblatex}
+\AtEveryBibitem{%
+  \clearlist{language}%
+  \clearfield{pagetotal}%
+}
+\addbibresource{library.bib}
+\usepackage[hidelinks, pdfencoding=auto]{hyperref}
+\usepackage{microtype}% avoid bib formatting issues
+
+% regarded in custombibstrings
+\NewBibliographyString{paragraph,subparagraph,article}
+\DeclareLanguageMapping{ngerman}{custombibstrings-ngerman}
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map[overwrite=false]{
+      \pertype{article}
+      \step[fieldsource=entrysubtype, match=\regexp{\Anewspaper\Z}, final]
+      \step[fieldsource=journal, final]
+      \step[fieldset=author, origfieldval, final]
+      \step[fieldsource=author, match=\regexp{\A(.*)\Z}, replace=\regexp{\{$1\}}]
+      \step[fieldset=author+an, fieldvalue={1=journalauthor}]
+      \step[fieldset=options, fieldvalue={journalauthor}]
+    }
+  }
+}
+
+% smallcaps
+\newtoggle{bbx@journalauthor}
+
+\DeclareEntryOption[boolean]{journalauthor}[true]{%
+  \settoggle{bbx@journalauthor}{#1}}
+
+\renewcommand{\mkbibnamefamily}[1]{%
+  \ifboolexpr{
+       test {\ifitemannotation{journalauthor}}}
+    {\mkbibemph{#1}}
+    {\textsc{#1}}}
+
+\DeclareDelimFormat[bib]{nametitledelim}{\addcolon\space}
+
+% editor & translator in parentheses
+\DeclareDelimFormat{editortypedelim}{\addspace} 
+\DeclareFieldFormat{editortype}{\mkbibparens{#1}}
+\DeclareDelimAlias{translatortypedelim}{editortypedelim}
+\DeclareFieldAlias{translatortype}{editortype}
+
+% translator in cite
+\newbibmacro{cite:labelname}{%
+  \printnames{labelname}%
+  \iffieldequalstr{labelnamesource}{author}
+    {\setunit{\printdelim{authortypedelim}}%
+     \usebibmacro{authorstrg}}
+    {\iffieldequalstr{labelnamesource}{editor}
+       {\setunit{\printdelim{editortypedelim}}%
+        \usebibmacro{editor+othersstrg}}
+       {\iffieldequalstr{labelnamesource}{translator}
+         {\setunit{\printdelim{editortypedelim}}%
+          \usebibmacro{translator+othersstrg}}
+         {}}}}
+
+\renewbibmacro*{cite}{%
+  \iffieldundef{shorthand}
+    {\ifthenelse{\ifnameundef{labelname}\OR\iffieldundef{labelyear}}
+       {\usebibmacro{cite:label}%
+        \setunit{\printdelim{nonameyeardelim}}}
+       {\usebibmacro{cite:labelname}%
+        \setunit{\printdelim{nameyeardelim}}}%
+     \usebibmacro{cite:labeldate+extradate}}
+    {\usebibmacro{cite:shorthand}}}
+
+\makeatletter
+\renewbibmacro*{textcite}{%
+  \ifnameundef{labelname}
+    {\iffieldundef{shorthand}
+       {\usebibmacro{cite:label}%
+        \setunit{%
+          \global\booltrue{cbx:parens}%
+          \printdelim{nonameyeardelim}%
+          \csuse{extblx@citedelim@\blx@delimcontext @inner@open}}%
+        \ifnumequal{\value{citecount}}{1}
+          {\usebibmacro{prenote}}
+          {}%
+        \usebibmacro{cite:labeldate+extradate}}
+       {\usebibmacro{cite:shorthand}}}
+    {\usebibmacro{cite:labelname}%
+     \setunit{%
+       \global\booltrue{cbx:parens}%
+       \printdelim{nameyeardelim}%
+       \csuse{extblx@citedelim@\blx@delimcontext @inner@open}}%
+     \ifnumequal{\value{citecount}}{1}
+       {\usebibmacro{prenote}}
+       {}%
+     \usebibmacro{citeyear}}}
+\makeatother
+
+% edition in front of addendum in parantheses
+\DeclareFieldFormat{edition}{\mkbibparens{#1}}
+\renewbibmacro*{edition}{}
+\renewbibmacro*{pubinstorg+location+date}[1]{%
+  \printlist{location}%
+  \iflistundef{#1}
+    {\setunit*{\locdatedelim}}
+    {\setunit*{\locpubdelim}}%
+  \printlist{#1}%
+  \setunit*{\pubdatedelim}%
+  \usebibmacro{date}%
+  \setunit{\addspace}%
+  \printfield{edition}%
+  \newunit}
+
+% set pseudonym
+\NewBibliographyString{pseudonym}
+\DefineBibliographyStrings{german}{
+  pseudonym = {Pseud\adddot},
+}
+
+\newbibmacro*{name:pseudonym}{%
+  \ifitemannotation{pseudonym}
+    {\addspace
+     \mkbibparens{%
+       \bibstring{pseudonym}}}
+    {}}
+
+\DeclareNameFormat{given-family}{%
+  \ifgiveninits
+    {\usebibmacro{name:given-family}
+      {\namepartfamily}
+      {\namepartgiveni}
+      {\namepartprefix}
+      {\namepartsuffix}}
+    {\usebibmacro{name:given-family}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}}%
+  \usebibmacro{name:pseudonym}%
+  \usebibmacro{name:andothers}}
+
+\DeclareNameFormat{family-given}{%
+  \ifgiveninits
+    {\usebibmacro{name:family-given}
+      {\namepartfamily}
+      {\namepartgiveni}
+      {\namepartprefix}
+      {\namepartsuffix}}
+    {\usebibmacro{name:family-given}
+      {\namepartfamily}
+      {\namepartgiven}
+      {\namepartprefix}
+      {\namepartsuffix}}%
+  \usebibmacro{name:pseudonym}%
+  \usebibmacro{name:andothers}}
+
+\DeclareNameFormat{family-given/given-family}{%
+  \ifnumequal{\value{listcount}}{1}
+    {\ifgiveninits
+       {\usebibmacro{name:family-given}
+         {\namepartfamily}
+         {\namepartgiveni}
+         {\namepartprefix}
+         {\namepartsuffix}}
+       {\usebibmacro{name:family-given}
+         {\namepartfamily}
+         {\namepartgiven}
+         {\namepartprefix}
+         {\namepartsuffix}}%
+     \ifboolexpe{%
+       test {\ifdefvoid\namepartgiven}
+       and
+       test {\ifdefvoid\namepartprefix}}
+       {}
+       {\usebibmacro{name:revsdelim}}}
+    {\ifgiveninits
+       {\usebibmacro{name:given-family}
+         {\namepartfamily}
+         {\namepartgiveni}
+         {\namepartprefix}
+         {\namepartsuffix}}
+       {\usebibmacro{name:given-family}
+         {\namepartfamily}
+         {\namepartgiven}
+         {\namepartprefix}
+         {\namepartsuffix}}}%
+  \usebibmacro{name:pseudonym}%
+  \usebibmacro{name:andothers}}
+  
+\DeclareFieldFormat
+  [article,inbook,incollection,inproceedings,patent,online]
+  {title}{#1\isdot}
+\DeclareFieldFormat
+  [online,thesis,unpublished]
+  {title}{\mkbibemph{#1}\isdot}% title italic
+
+% no period after addon titles
+\renewcommand*{\titleaddonpunct}{\addspace}
+\DeclareFieldFormat{titleaddon}{\mkbibbrackets{#1}}
+\DeclareFieldAlias{booktitleaddon}{titleaddon}
+\DeclareFieldAlias{maintitleaddon}{titleaddon}
+\DeclareFieldAlias{journaltitleaddon}{titleaddon}
+\DeclareFieldAlias{subtitleaddon}{titleaddon}
+
+% organization in front of maintitle
+\newbibmacro{online:editor+maintitle}{
+  \printlist{organization}%
+  \clearlist{organization}%
+  \setunit*{\addcolon\space}%
+  \printnames{editor}%
+  \setunit*{\addcolon\space}%
+  \usebibmacro{maintitle}}
+
+\usepackage{xpatch}
+\xpatchbibdriver{online}
+  {\usebibmacro{byeditor+others}}
+  {\usebibmacro{online:editor+maintitle}}
+  {}{}
+\xpatchbibmacro{editorstrg}{\bibstring}{\bibcpstring}{}{}
+\xpatchbibmacro{editorstrg}{\bibstring}{\bibcpstring}{}{}
+
+\renewbibmacro*{in:}{%
+  \iftoggle{bbx@journalauthor}
+    {}
+    {\printtext{%
+     \bibstring{in}\intitlepunct}}}
+
+\DeclareNameAlias{ineditor}{sortname}
+
+\renewcommand*{\volnumdelim}{\addcomma\space}
+
+% chapter before maintitle in inbook, incollection, inproceedings
+\usepackage{xpatch}
+\newcommand*{\MoveChapAndPagesInDriver}[1]{%
+  \xpatchbibdriver{#1}
+    {\newunit\newblock
+     \usebibmacro{chapter+pages}}
+    {}
+    {}
+    {\PackageError
+       {patch-biblatex}
+       {Failed to remove 'chapter+pages' from @#1 driver}
+       {}}%
+  \xpatchbibdriver{#1}
+    {\usebibmacro{in:}}
+    {\newunit\newblock
+     \usebibmacro{chapter+pages}%
+     \usebibmacro{in:}}
+    {}
+    {\PackageError
+       {patch-biblatex}
+       {Failed to remove 'chapter+pages' from @#1 driver}
+       {}}%
+}
+
+\MoveChapAndPagesInDriver{inbook}
+\MoveChapAndPagesInDriver{incollection}
+\MoveChapAndPagesInDriver{inproceedings}
+
+% set online sources as per IOA
+\renewbibmacro*{addendum+pubstate}{%
+  \setunit{\addspace}%
+  \printfield{addendum}%
+  \newunit\newblock
+  \printfield{pubstate}}
+  
+% organization in caps 
+ \DeclareListFormat[legislation,online]{organization}{
+  \textsc{%
+    \usebibmacro{list:delim}{#1}%
+    #1\isdot
+    \usebibmacro{list:andothers}}} 
+  
+\urlstyle{same}% 
+\DeclareFieldFormat{url}{\url{#1}}
+\DeclareFieldFormat{urldate}{\mkbibparens{\bibstring{urlseen}\addcolon\space#1}}
+  
+% set articles as per IOA
+\DeclareListWrapperFormat[article]{parenlocation}{\mkbibparens{#1}}
+\DeclareListAlias{parenlocation}{location}
+\renewbibmacro*{journal}{%
+  \ifboolexpr{
+    (test {\iffieldundef{journaltitle}}
+     and
+     test {\iffieldundef{journalsubtitle}})
+    or
+    togl {bbx@journalauthor}
+  }
+    {\ifboolexpr{
+       togl {bbx@journalauthor}
+       and
+       test {\iffieldequalstr{entrysubtype}{newspaper}}
+     }
+       {\printlist{location}}
+       {}}
+    {\printtext[journaltitle]{%
+       \printfield[titlecase]{journaltitle}%
+       \setunit{\subtitlepunct}%
+       \printfield[titlecase]{journalsubtitle}}%
+       \setunit{\titleaddonpunct}%
+      \printfield{journaltitleaddon}%
+     \iffieldequalstr{entrysubtype}{newspaper}
+       {\setunit{\addspace}%
+        \printlist[parenlocation]{location}}
+       {}}}
+
+\renewbibmacro*{issue+date}{%
+  \usebibmacro{bbx:ifmergeddate}
+    {}
+    {\printtext[issuedate]{%
+       \printdate}}%
+  \setunit{\addcomma\space}%
+  \printfield{issue}%
+  \setunit{\addcomma\space}}
+
+\renewbibmacro*{journal+issuetitle}{%
+  \usebibmacro{journal}%
+  \setunit*{\jourvoldelim}%
+  \iffieldundef{series}
+    {}
+    {\setunit*{\jourserdelim}%
+     \printfield{series}%
+     \setunit{\servoldelim}}%
+  \usebibmacro{volume+number+eid}%
+  \setunit{\volnumdatedelim}%
+  \iftoggle{bbx@journalauthor}
+    {}
+    {}
+  \usebibmacro{issue+date}%
+  \setunit{\addcolon\space}%
+  \usebibmacro{issue}%
+  \newunit}
+  
+% set legislation type as per IOA 
+\DeclareFieldFormat[legislation]{title}{#1\isdot}
+\DeclareFieldFormat[legislation]{date}{\mkbibparens{#1}\isdot}
+%\DeclareListWrapperFormat[legislation]{organization}{\textsc{#1}}
+
+\newbibmacro*{legislationorder}{%
+  \printfield{title}%
+  \setunit{\subtitlepunct}%
+  \printfield{subtitle}%
+  \setunit{\titleaddonpunct}%
+  \printfield{titleaddon}
+  \setunit{\addspace}%
+  \printdate{\addcolon\addspace}%
+  \newunit
+  \printlist{organization}%
+  \setunit{\addcolon\addspace}%
+  \printfield{maintitle}%
+  \setunit{\titleaddonpunct}%
+  \printfield{maintitleaddon}%
+}
+  
+\DeclareBibliographyDriver{legislation}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \usebibmacro{legislationorder}%
+  \newunit\newblock
+  \usebibmacro{url+urldate}%
+  \setunit{\bibpagerefpunct}\newblock
+  \usebibmacro{pageref}%
+  \newunit\newblock
+  \iftoggle{bbx:related}
+    {\usebibmacro{related:init}%
+     \usebibmacro{related}}
+    {}%
+  \usebibmacro{finentry}
+}
+%----------------------------------------------------------------------------
+%	CITING
+%----------------------------------------------------------------------------
+\makeatletter 
+\renewbibmacro*{cite:labeldate+extradate}{%
+  \iffieldundef{labelyear}
+    {}
+    {\printtext[extblx@inner\blx@delimcontext delims]{%
+       \printtext[bibhyperref]{%
+         \iftoggle{bbx@journalauthor}
+           {\printfield{issue}%
+            \setunit{\addcomma\space}%
+            \printtext[\blx@delimcontext labeldate]{%
+              \printdateextra}}
+           {\printtext[\blx@delimcontext labeldate]{%
+              \printlabeldateextra}}}}}}
+\makeatother
+
+\renewcommand\postnotedelim{\addcolon\addspace}
+\DeclareFieldFormat{postnote}{\mknormrange{#1}}
+\DeclareFieldFormat{multipostnote}{\mknormrange{#1}}
+
+% possessive citing
+\newrobustcmd*{\posscitealias}{%
+  \AtNextCite{%
+    \DeclareNameWrapperFormat{labelname}{##1s}%
+    \DeclareFieldFormat{label}{##1s}}}
+\newrobustcmd*{\posscite}{%
+  \posscitealias%
+  \textcite}
+\newrobustcmd*{\Posscite}{\bibsentence\posscite}
+\newrobustcmd*{\posscites}{%
+  \posscitealias%
+  \textcites}
+  
+% legislation citing 
+\DeclareFieldFormat[legislation]{citetitle}{#1} % No italics for title in citations
+\DeclareLabeltitle[legislation]{%
+  \field{shorttitle}
+  \field{title}
+}
+%----------------------------------------------------------------------------
+%	MAIN
+%----------------------------------------------------------------------------
+\usepackage{showframe}
+\begin{document}
+\input{titlepage}
+\input{toc} 
+\clearpage
+\listoffigures
+\listoftables
+\clearpage
+\input{note}
+\clearpage
+\input{body}
+% \nocite{*} 
+\clearpage
+\printbibheading[heading=bibintoc,title={Literaturverzeichnis}]
+\printbibliography[heading=subbibliography,keyword={primary},title={Prim{\"a}rliteratur}]
+\printbibliography[heading=subbibliography,notkeyword={primary},notkeyword={tertiary},notkeyword={law},title={Sekund{\"a}rliteratur}]
+\printbibliography[heading=subbibliography,keyword={tertiary},title={Terti{\"a}rliteratur}]
+\printbibliography[heading=subbibliography,keyword={law},title={Gesetze}]
+\clearpage
+\printunsrtglossary[type=\acronymtype]
+\printunsrtglossary
+\printindex
+\clearpage
+\input{appendix}
+\input{affidavit}
+\end{document}
